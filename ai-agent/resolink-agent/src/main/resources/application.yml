@@ -1,0 +1,45 @@
+back-end-server:
+  url: http://localhost:2307
+
+deepseek:
+  api:
+    url: https://api.deepseek.com/v1/chat/completions
+    key: # 替换为你的Deepseek API密钥
+    model: deepseek-chat
+    max-tokens: 2000
+    temperature: 0.1
+
+spring:
+  application:
+    name: resolink-agent
+  datasource:
+    url: jdbc:mysql://localhost:3306/resolink
+    username: # 替换为你的MySQL用户名
+    password: # 替换为你的MySQL密码
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+server:
+  port: 2970
+  tomcat:
+    connection-timeout: 60s

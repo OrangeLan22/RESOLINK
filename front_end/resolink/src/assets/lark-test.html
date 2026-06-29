@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书账号绑定测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0069d9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>飞书账号绑定测试</h1>
+        
+        <div class="input-group">
+            <label for="token">Token:</label>
+            <input type="text" id="token" placeholder="请输入Token">
+        </div>
+        
+        <button onclick="generateAuthUrl()">生成授权URL</button>
+        <button onclick="checkBindStatus()">查询绑定状态</button>
+        <button onclick="getLarkUserInfo()">获取飞书用户信息</button>
+        <button onclick="unbindFeishu()">解绑飞书账号</button>
+        
+        <div class="result" id="result">
+            <!-- 结果将显示在这里 -->
+        </div>
+    </div>
+    
+    <script>
+        function showResult(message, isError = false) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<p class="${isError ? 'error' : 'success'}">${message}</p>`;
+        }
+        
+        async function generateAuthUrl() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                showResult('请输入Token', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:2307/api/lark/generateAuthUrl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': token
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showResult(`授权URL生成成功: <a href="${data.authUrl}" target="_blank">${data.authUrl}</a>`);
+                } else {
+                    showResult('生成授权URL失败: ' + data.message, true);
+                }
+            } catch (error) {
+                showResult('发生错误: ' + error.message, true);
+            }
+        }
+        
+        async function checkBindStatus() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                showResult('请输入Token', true);
+                return;
+            }
+            
+            try {
+                // 直接查询绑定状态
+                const statusResponse = await fetch('http://localhost:2307/api/lark/getBindStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': token
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+                
+                const statusData = await statusResponse.json();
+                if (statusData.success) {
+                    if (statusData.isBound) {
+                        showResult(`已绑定飞书账号，飞书用户ID: ${statusData.feishuUserId}`);
+                    } else {
+                        showResult('未绑定飞书账号');
+                    }
+                } else {
+                    showResult('查询绑定状态失败: ' + statusData.message, true);
+                }
+            } catch (error) {
+                showResult('发生错误: ' + error.message, true);
+            }
+        }
+        
+        async function unbindFeishu() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                showResult('请输入Token', true);
+                return;
+            }
+            
+            try {
+                // 直接解绑飞书账号
+                const unbindResponse = await fetch('http://localhost:2307/api/lark/unbind', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': token
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+                
+                const unbindData = await unbindResponse.json();
+                if (unbindData.success) {
+                    showResult('飞书账号解绑成功');
+                } else {
+                    showResult('解绑失败: ' + unbindData.message, true);
+                }
+            } catch (error) {
+                showResult('发生错误: ' + error.message, true);
+            }
+        }
+        
+        async function getLarkUserInfo() {
+            const token = document.getElementById('token').value;
+            if (!token) {
+                showResult('请输入Token', true);
+                return;
+            }
+            
+            try {
+                // 直接获取飞书用户信息
+                const userInfoResponse = await fetch('http://localhost:2307/api/lark/user-info', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': token
+                    }
+                });
+                
+                const userInfoData = await userInfoResponse.json();
+                if (userInfoData.success) {
+                    const user = userInfoData.data.user;
+                    showResult(`<div style="display: flex; align-items: center;"><img src="${user.avatar_url}" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;"><div><strong>姓名:</strong> ${user.name}<br><strong>邮箱:</strong> ${user.email || '无'}<br><strong>手机号:</strong> ${user.mobile || '无'}</div></div>`);
+                } else {
+                    showResult('获取飞书用户信息失败: ' + userInfoData.message, true);
+                }
+            } catch (error) {
+                showResult('发生错误: ' + error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

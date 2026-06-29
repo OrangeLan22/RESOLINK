@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "back-end-server.url",
+      "type": "java.lang.String",
+      "description": "Description for back-end-server.url."
+  }
+] }

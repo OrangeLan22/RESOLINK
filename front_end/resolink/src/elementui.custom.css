@@ -1,0 +1,160 @@
+/* Element UI 自定义全局样式文件 */
+
+/* 下拉选择框样式 */
+/* 选中项文本颜色 */
+.el-select-dropdown__item.is-selected {
+  color: #3f51b5 !important; /* 设置选中项文本为主题蓝色 */
+}
+
+/* 禁止选择下拉选择框中的文本 */
+.el-select-dropdown__item {
+  user-select: none !important; /* 禁用文本选择功能 */
+}
+
+/* 按钮样式 */
+/* 非危险/主要按钮的悬停效果 */
+.el-button:hover:not(.el-button--danger):not(.el-button--primary) {
+  color: #3f51b5; /* 悬停时文本颜色变为主题蓝色 */
+  border-color: #3f51b5; /* 悬停时边框颜色变为主题蓝色 */
+}
+
+/* 弹窗样式 */
+/* 弹窗滚动条自定义 */
+.el-overlay-dialog {
+  /* 滚动条宽度 */
+  &::-webkit-scrollbar {
+    width: 7px; /* 设置滚动条宽度为7px */
+    background: transparent; /* 滚动条背景透明 */
+  }
+
+  /* 滚动条轨道 */
+  &::-webkit-scrollbar-track {
+    background: transparent; /* 轨道背景透明 */
+  }
+
+  /* 滚动条滑块 */
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.8); /* 滑块半透明白色 */
+    border-radius: 5px; /* 滑块圆角 */
+  }
+
+  /* 滚动条滑块悬停效果 */
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.9); /* 悬停时滑块透明度增加 */
+  }
+
+  /* 隐藏上下箭头按钮 */
+  &::-webkit-scrollbar-button {
+    display: none; /* 不显示滚动条按钮 */
+  }
+}
+
+/* 弹窗标题样式 */
+.el-dialog__title {
+  font-size: 18px; /* 标题字体大小 */
+  font-weight: bold; /* 标题字体粗细 */
+  color: #303133; /* 标题文本颜色 */
+}
+
+/* 弹窗关闭按钮样式 */
+/* 关闭按钮基础样式 */
+.el-dialog__headerbtn {
+  width: 30px; /* 关闭按钮宽度 */
+  height: 30px; /* 关闭按钮高度 */
+  border-radius: 50%; /* 关闭按钮圆形 */
+  display: flex; /* 使用弹性布局 */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+  transition: all 0.3s ease; /* 过渡效果 */
+}
+
+/* 关闭按钮悬停效果 */
+.el-dialog__headerbtn:hover {
+  background-color: transparent; /* 悬停时背景透明 */
+}
+
+/* 关闭按钮图标样式 */
+.el-dialog__close {
+  font-size: 20px; /* 图标大小 */
+  line-height: 1; /* 行高 */
+}
+
+/* 关闭按钮图标悬停效果 */
+.el-dialog__headerbtn:hover .el-dialog__close {
+  color: #303133; /* 悬停时图标颜色 */
+}
+
+/* el-message-box 样式 */
+.el-message-box {
+  user-select: none;
+}
+
+.el-message-box__title {
+  font-size: 18px; /* 标题字体大小 */
+  font-weight: bold; /* 标题字体粗细 */
+  color: #303133; /* 标题文本颜色 */
+}
+
+.el-message {
+  user-select: none;
+}
+
+/* 多选下拉选择框选中项样式 */
+.el-select-dropdown.is-multiple .el-select-dropdown__item.is-selected:after {
+  background-color: #3f51b5 !important;
+}
+
+.el-tooltip {
+  user-select: none;
+}
+
+/* 日期选择器样式 */
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text {
+  background-color: #3f51b5;
+}
+.el-date-table td.today .el-date-table-cell__text {
+  color: #3f51b5;
+}
+.el-date-picker__header-label:hover {
+  color: #3f51b5;
+}
+.el-date-table td .el-date-table-cell .el-date-table-cell__text:hover {
+  color: #3f51b5;
+}
+.el-date-table td.available:hover {
+  color: #3f51b5;
+}
+.el-month-table td.current:not(.disabled) .el-date-table-cell__text {
+  background-color: #3f51b5;
+}
+.el-month-table td.today .el-date-table-cell__text {
+  color: #3f51b5;
+}
+.el-month-table td .el-date-table-cell__text:hover {
+  color: #3f51b5;
+}
+.el-picker-panel__icon-btn:hover {
+  color: #3f51b5;
+}
+.el-year-table td.current:not(.disabled) .el-date-table-cell__text {
+  background-color: #3f51b5;
+}
+.el-year-table td.today .el-date-table-cell__text {
+  color: #3f51b5;
+}
+.el-year-table td .el-date-table-cell__text:hover {
+  color: #3f51b5;
+}
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text:hover {
+  color: #ffffff;
+}
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px #3f51b5 inset;
+}
+.el-time-panel__btn.confirm {
+  color: #3f51b5;
+}
+.el-drawer {
+  background-color: transparent;
+  box-shadow: 0 0 0 transparent;
+}

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: resolink-message
+  kafka:
+    bootstrap-servers: localhost:9092
+
+kafka:
+  topic: resolink-message-topic
+
+server:
+  port: 2308

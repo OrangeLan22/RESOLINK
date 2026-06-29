@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "dev",
+			"path": "front_end/resolink",
+			"problemMatcher": [],
+			"label": "npm: dev - front_end/resolink",
+			"detail": "vite"
+		}
+	]
+}

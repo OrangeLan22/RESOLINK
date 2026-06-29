@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "mvn spring-boot:run",
+			"options": {
+				"cwd": "${workspaceFolder}/back_end/resolink-server"
+			},
+			"problemMatcher": [],
+			"label": "mvn: spring-boot:run - back_end/resolink-server",
+			"detail": "Start Spring Boot backend server"
+		}
+	]
+}

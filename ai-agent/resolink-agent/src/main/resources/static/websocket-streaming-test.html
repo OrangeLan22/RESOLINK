@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent测试-流式响应</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        
+        .token-section {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        
+        .token-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .streaming-area {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 500px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        
+        .stream-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .stream-item.content { border-left: 4px solid #007bff; }
+        .stream-item.reasoning { border-left: 4px solid #6c757d; }
+        .stream-item.tool-call { border-left: 4px solid #28a745; }
+        .stream-item.finish { border-left: 4px solid #ffc107; }
+        
+        .stream-item.new {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chunk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .chunk-type {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .content .chunk-type { color: #007bff; }
+        .reasoning .chunk-type { color: #6c757d; }
+        .tool-call .chunk-type { color: #28a745; }
+        .finish .chunk-type { color: #ffc107; }
+        
+        .chunk-time {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .chunk-content {
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .reasoning-content {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-style: italic;
+            color: #6c757d;
+        }
+        
+        .tool-call-info {
+            background: #f8fff9;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        .tool-name {
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .tool-description {
+            color: #6c757d;
+            font-size: 12px;
+            margin: 5px 0;
+        }
+        
+        .tool-arguments {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .final-response {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .final-response h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
+        }
+        
+        .final-content {
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 1px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .log-area {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            height: 150px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .info-box {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .typing-indicator {
+            display: none;
+            color: #6c757d;
+            font-style: italic;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .typing-dots {
+            display: inline-block;
+            animation: typing 1.4s infinite;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WebSocket AI聊天测试 - 真正的流式响应</h1>
+        
+        <div class="info-box">
+            <strong>功能说明：</strong> 此页面展示真正的流式响应，模型每轮思考时都实时返回数据。
+            <br><strong>包括内容、推理过程、工具调用和完成状态。</strong>
+        </div>
+        
+        <div class="status disconnected" id="status">连接状态: 未连接</div>
+        
+        <div class="token-section">
+            <h3>Token配置</h3>
+            <input type="text" class="token-input" id="tokenInput" 
+                   placeholder="请输入有效的token..." 
+                   value="test-token">
+            <div>
+                <button onclick="connectWebSocket()" id="connectBtn">连接WebSocket</button>
+                <button onclick="disconnectWebSocket()" id="disconnectBtn" disabled>断开连接</button>
+                <button onclick="clearStream()">清空流</button>
+            </div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            模型正在处理您的请求<span class="typing-dots">...</span>
+        </div>
+        
+        <div class="streaming-area" id="streamingArea">
+            <div id="streamContainer"></div>
+        </div>
+        
+        <div id="finalResponse" style="display: none;"></div>
+        
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="输入需要调用工具的消息..." disabled>
+            <button onclick="sendMessage()" id="sendBtn" disabled>发送</button>
+        </div>
+        
+        <div>
+            <h3>连接日志</h3>
+            <div class="log-area" id="logArea"></div>
+        </div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let sessionId = null;
+        let currentToken = '';
+        let contentBuffer = '';
+        let reasoningBuffer = '';
+
+        // 页面加载时初始化
+        window.onload = function() {
+            addLog('页面加载完成');
+            addLog('WebSocket连接地址: ws://localhost:2970/ws/chat?token=YOUR_TOKEN');
+        };
+
+        function getWebSocketUrl() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            currentToken = document.getElementById('tokenInput').value.trim();
+            
+            if (!currentToken) {
+                alert('请输入有效的token');
+                return null;
+            }
+            
+            // 将token作为查询参数传递
+            const host = 'localhost:2970';
+            return `${protocol}//${host}/ws/chat?token=${encodeURIComponent(currentToken)}`;
+        }
+
+        function connectWebSocket() {
+            const wsUrl = getWebSocketUrl();
+            if (!wsUrl) return;
+            
+            addLog(`尝试连接到: ${wsUrl.replace(currentToken, '***')}`); // 隐藏token显示
+            
+            try {
+                websocket = new WebSocket(wsUrl);
+                
+                websocket.onopen = function(event) {
+                    updateStatus('已连接', 'connected');
+                    document.getElementById('connectBtn').disabled = true;
+                    document.getElementById('disconnectBtn').disabled = false;
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                    document.getElementById('tokenInput').disabled = true;
+                    addLog('WebSocket连接已建立');
+                };
+                
+                websocket.onmessage = function(event) {
+                    const message = JSON.parse(event.data);
+                    addLog(`收到消息类型: ${message.type}`);
+                    handleWebSocketMessage(message);
+                };
+                
+                websocket.onclose = function(event) {
+                    updateStatus('连接已断开', 'disconnected');
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('disconnectBtn').disabled = true;
+                    document.getElementById('messageInput').disabled = true;
+                    document.getElementById('sendBtn').disabled = true;
+                    document.getElementById('tokenInput').disabled = false;
+                    
+                    if (event.code === 1006) {
+                        addLog('连接被拒绝：Token验证失败');
+                    } else {
+                        addLog('WebSocket连接已断开');
+                    }
+                    
+                    websocket = null;
+                    addLog(`WebSocket连接关闭，代码: ${event.code}, 原因: ${event.reason}`);
+                };
+                
+                websocket.onerror = function(event) {
+                    addLog('WebSocket连接发生错误');
+                };
+                
+            } catch (error) {
+                addLog('连接WebSocket时出错: ' + error.message);
+            }
+        }
+
+        function disconnectWebSocket() {
+            if (websocket) {
+                addLog('正在断开WebSocket连接...');
+                
+                // 发送断开连接消息
+                const disconnectMessage = {
+                    type: 'DISCONNECT',
+                    session_id: sessionId
+                };
+                websocket.send(JSON.stringify(disconnectMessage));
+                
+                // 关闭连接
+                websocket.close();
+            }
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (message && websocket && websocket.readyState === WebSocket.OPEN) {
+                // 清空之前的流
+                clearStream();
+                
+                // 重置缓冲区
+                contentBuffer = '';
+                reasoningBuffer = '';
+                
+                // 显示打字指示器
+                document.getElementById('typingIndicator').style.display = 'block';
+                
+                // 构建WebSocket消息
+                const chatMessage = {
+                    type: 'CHAT',
+                    content: {
+                        message: message,
+                        session_id: sessionId,
+                        token: currentToken
+                    },
+                    timestamp: Date.now()
+                };
+                
+                addLog(`发送消息: ${message}`);
+                
+                // 发送消息
+                websocket.send(JSON.stringify(chatMessage));
+                
+                // 清空输入框
+                messageInput.value = '';
+            }
+        }
+
+        function handleWebSocketMessage(message) {
+            switch (message.type) {
+                case 'CONNECT':
+                    sessionId = message.session_id || message.content?.sessionId;
+                    addLog(`连接成功，会话ID: ${sessionId}`);
+                    break;
+                    
+                case 'STREAMING':
+                    const streamingResponse = message.content;
+                    showStreamingChunk(streamingResponse);
+                    break;
+                    
+                case 'SIMPLE_MODEL':
+                    const simpleResponse = message.content;
+                    showFinalResponse(simpleResponse);
+                    // 隐藏打字指示器
+                    document.getElementById('typingIndicator').style.display = 'none';
+                    break;
+                    
+                case 'ERROR':
+                    const errorMsg = message.content?.error || '发生未知错误';
+                    addLog(`错误: ${errorMsg}`);
+                    // 隐藏打字指示器
+                    document.getElementById('typingIndicator').style.display = 'none';
+                    break;
+                    
+                default:
+                    addLog(`未知消息类型: ${message.type}`);
+            }
+        }
+
+        function showStreamingChunk(streamingResponse) {
+            const streamContainer = document.getElementById('streamContainer');
+            
+            // 创建流项
+            const streamItem = document.createElement('div');
+            streamItem.className = `stream-item ${streamResponse.chunk_type} new`;
+            
+            const timestamp = new Date(streamingResponse.timestamp).toLocaleTimeString();
+            
+            let contentHtml = '';
+            
+            switch (streamResponse.chunk_type) {
+                case 'content':
+                    contentBuffer += streamingResponse.content || '';
+                    contentHtml = `
+                        <div class="chunk-header">
+                            <span class="chunk-type">内容</span>
+                            <span class="chunk-time">${timestamp}</span>
+                        </div>
+                        <div class="chunk-content">${contentBuffer}</div>
+                    `;
+                    break;
+                    
+                case 'reasoning':
+                    reasoningBuffer += streamingResponse.reasoning_content || '';
+                    contentHtml = `
+                        <div class="chunk-header">
+                            <span class="chunk-type">推理过程</span>
+                            <span class="chunk-time">${timestamp}</span>
+                        </div>
+                        <div class="chunk-content">
+                            <div class="reasoning-content">${reasoningBuffer}</div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'tool_call':
+                    const toolCall = streamingResponse.tool_call;
+                    contentHtml = `
+                        <div class="chunk-header">
+                            <span class="chunk-type">工具调用</span>
+                            <span class="chunk-time">${timestamp}</span>
+                        </div>
+                        <div class="chunk-content">
+                            <div class="tool-call-info">
+                                <div class="tool-name">${toolCall.tool_name}</div>
+                                <div class="tool-description">${toolCall.tool_description}</div>
+                                <div class="tool-arguments">参数: ${JSON.stringify(toolCall.arguments, null, 2)}</div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'finish':
+                    contentHtml = `
+                        <div class="chunk-header">
+                            <span class="chunk-type">完成</span>
+                            <span class="chunk-time">${timestamp}</span>
+                        </div>
+                        <div class="chunk-content">
+                            处理完成，原因: ${streamResponse.finish_reason || '未知'}
+                        </div>
+                    `;
+                    break;
+                    
+                default:
+                    contentHtml = `
+                        <div class="chunk-header">
+                            <span class="chunk-type">未知</span>
+                            <span class="chunk-time">${timestamp}</span>
+                        </div>
+                        <div class="chunk-content">
+                            未知类型的响应
+                        </div>
+                    `;
+            }
+            
+            streamItem.innerHTML = contentHtml;
+            streamContainer.appendChild(streamItem);
+            
+            // 滚动到底部
+            streamContainer.scrollTop = streamContainer.scrollHeight;
+            
+            // 移除动画类
+            setTimeout(() => {
+                streamItem.classList.remove('new');
+            }, 500);
+        }
+
+        function showFinalResponse(simpleResponse) {
+            const finalResponseDiv = document.getElementById('finalResponse');
+            
+            let toolCallsHtml = '';
+            if (simpleResponse.tool_calls && simpleResponse.tool_calls.length > 0) {
+                toolCallsHtml = `
+                    <h4>工具调用</h4>
+                    <div class="tools-section">
+                `;
+                
+                simpleResponse.tool_calls.forEach((toolCall, index) => {
+                    toolCallsHtml += `
+                        <div class="tool-call-item">
+                            <div class="tool-header">
+                                <span class="tool-name">${toolCall.tool_name}</span>
+                                <span class="tool-type">${toolCall.tool_description}</span>
+                            </div>
+                            <div class="tool-arguments">参数: ${JSON.stringify(toolCall.arguments, null, 2)}</div>
+                        </div>
+                    `;
+                });
+                
+                toolCallsHtml += '</div>';
+            }
+            
+            finalResponseDiv.innerHTML = `
+                <div class="final-response">
+                    <h4>最终回复</h4>
+                    <div class="final-content">${simpleResponse.content}</div>
+                    ${toolCallsHtml}
+                </div>
+            `;
+            
+            finalResponseDiv.style.display = 'block';
+        }
+
+        function addLog(message) {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function updateStatus(text, className) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = `连接状态: ${text}`;
+            statusDiv.className = `status ${className}`;
+        }
+
+        function clearStream() {
+            document.getElementById('streamContainer').innerHTML = '';
+            document.getElementById('finalResponse').innerHTML = '';
+            document.getElementById('finalResponse').style.display = 'none';
+            contentBuffer = '';
+            reasoningBuffer = '';
+            addLog('流数据已清空');
+        }
+
+        // 支持回车键发送消息
+        document.getElementById('messageInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Token输入框支持回车连接
+        document.getElementById('tokenInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                connectWebSocket();
+            }
+        });
+    </script>
+</body>
+</html>

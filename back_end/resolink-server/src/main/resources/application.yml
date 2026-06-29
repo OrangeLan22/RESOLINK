@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: resolink-server
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/resolink?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+    username: # 替换为你的MySQL用户名
+    password: # 替换为你的MySQL密码
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        enable_lazy_load_no_trans: true
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+server:
+  port: 2307
+
+# JWT配置
+jwt:
+  # 用于签名的密钥，生产环境中应使用更安全的密钥
+  secret-key: # 替换为你生成的JWT密钥, 如: "123456"
+  # Token有效期（毫秒），默认24小时
+  expiration-time: 86400000
+
+# 飞书API配置
+lark:
+  # 应用ID
+  appId: # 替换为你的飞书应用ID
+  # 应用密钥
+  appSecret: # 替换为你的飞书应用密钥
+  # 重定向URI
+  redirectUri: "http://localhost:2307/api/lark/authCallback"
+
+feishu:
+  card_id:
+    # 绑定成功卡片ID
+    bind: # 替换为你的飞书绑定成功卡片ID
+    # 解绑卡片ID
+    unbind: # 替换为你的飞书解绑卡片ID
+    # 预约成功卡片ID
+    appointment: # 替换为你的飞书预约成功卡片ID
+    # 取消预约卡片ID
+    cancel: # 替换为你的飞书取消预约卡片ID
+    # 待检查卡片ID
+    check: # 替换为你的飞书待检查卡片ID
+    # 资源即将开始卡片ID
+    start: # 替换为你的飞书资源即将开始卡片ID

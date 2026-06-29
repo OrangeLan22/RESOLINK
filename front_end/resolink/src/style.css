@@ -1,0 +1,63 @@
+/* 原生CSS全局样式文件 */
+
+/* 根元素样式 */
+:root {
+  background-color: #242424; /* 设置页面背景色为深灰色 */
+}
+
+/* 页面主体样式 */
+body {
+  margin: 0; /* 重置页面默认边距 */
+}
+
+/* 标签容器样式 */
+.tab-container {
+  box-sizing: border-box; /* 使用边框盒模型计算尺寸 */
+  padding: 10px; /* 设置内边距 */
+  height: 100%; /* 容器高度占满父元素 */
+  overflow-y: auto; /* 内容溢出时显示垂直滚动条 */
+}
+
+/* 标签主体内容样式 */
+.tab-main {
+  padding: 20px; /* 设置内边距 */
+  border-radius: 5px; /* 设置圆角边框 */
+  background: white; /* 设置背景色为白色 */
+}
+
+/* 自定义滚动条样式 */
+.scrollbar {
+  overflow: auto; /* 内容溢出时显示滚动条 */
+
+  /* 滚动条基础样式 */
+  &::-webkit-scrollbar {
+    width: 7px; /* 设置滚动条宽度 */
+    background: transparent; /* 滚动条背景透明 */
+  }
+
+  /* 滚动条轨道 */
+  &::-webkit-scrollbar-track {
+    background: transparent; /* 轨道背景透明 */
+  }
+
+  /* 滚动条滑块 */
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2); /* 滑块半透明黑色 */
+    border-radius: 5px; /* 滑块圆角 */
+  }
+
+  /* 滚动条滑块悬停效果 */
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3); /* 悬停时滑块透明度增加 */
+  }
+
+  /* 隐藏上下箭头按钮 */
+  &::-webkit-scrollbar-button {
+    display: none; /* 不显示滚动条按钮 */
+  }
+}
+
+/* 空状态SVG图标样式 */
+.empty-svg {
+  width: 200px; /* 设置SVG图标宽度 */
+}
